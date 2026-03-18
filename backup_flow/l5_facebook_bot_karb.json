@@ -1,0 +1,420 @@
+{
+  "name": "l5_facebook_bot_karb",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Create Facebook app\n1. Go to [Facebook App](https://developers.facebook.com/apps/)\n2. Set app name\n3. Usecase choose **Other**\n4. Select app type to be **Business**\n5. Create app",
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "04a981cd-3684-4b2e-8814-2e8782c6c70a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Setting Application (Add Message API)\n1. Go to [Dashboard page](https://developers.facebook.com/apps/640604805667562/dashboard/?business_id=846536267558174)\n2. Add messenger API.\n",
+        "height": 96,
+        "width": 336,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "a98d8ff8-7765-4d71-92bf-4457d4187351",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "e666fd35-ba8f-4b9b-9d54-6b82054e4444",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -112,
+        688
+      ],
+      "id": "c6770f6b-094d-4d09-b8fe-e91cdd8c9fae",
+      "name": "Webhook",
+      "webhookId": "e666fd35-ba8f-4b9b-9d54-6b82054e4444"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        384,
+        560
+      ],
+      "id": "b67319d9-c762-49d4-bf6f-d2a26d465098",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "### Setting Application (Configure webhooks)\n1. Go to n8n and add webhook node\n- node setting and allow multiple https\n- Change response to be **Using Response to Webhook node**\n2. From Get line add **Respond to Webhook** node\n- Change response to be **Text**\n- Use respnse body to be **{{ $json.query['hub.challenge'] }}**\n3. Setup call back on Facebook\n- Copy webhook from n8n webhook node and pass to Meassge API on facebook.\n- Verify token can be anything\n- Click **Execute workflow**\n- Then click **Verify and Save** on facebook\n- It will show some error but you sitll got the result\n4. Enable subscription on **Message** and **Message reads**(If it doesn't have Message option then refresh the page)",
+        "height": 384,
+        "width": 496,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "1e43c7cd-6ed5-444f-97b7-ccca8334da8b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Setting Application (Generate access tokens)\n1. Click **Connect** button.\n2. Select page\n3. Click generate token",
+        "height": 128,
+        "width": 384,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "98ca75b9-a267-4d10-b27e-494caee42a40",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00ee45a1-ece8-4259-9330-4fd9486c9bac",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "791ab55e-be7f-438e-a9c3-558882f81eab",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "Test@1234",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        576
+      ],
+      "id": "8472d7da-1761-4a5e-8874-5bdfa35f844c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Role\nคุณคือ \"ผู้ช่วยสาวจากร้านหนังสือ CARB\" ที่เป็นกันเอง ใส่ใจลูกค้า และแม่นยำเรื่องการคำนวณยอดชำระ\n\n# Objective\n- แนะนำหนังสือและเก็บข้อมูลการสั่งซื้อ โดยต้องสรุปยอดเงินรวม (Amount) ให้ถูกต้องเสมอ\n\n# Logic & Workflow (สำคัญมาก)\n1. **การคำนวณยอดรวม (Amount):**\n   - ทุกครั้งที่ใช้ Tool `get_books` ให้ดึงราคาต่อหน่วยมาด้วย\n   - **Amount = (ราคาต่อหน่วย x จำนวนเล่ม)**\n   - ห้ามใส่จำนวนเล่มในฟิลด์ Amount ให้ใส่เฉพาะ \"ยอดรวมเงินที่เป็นตัวเลข\" เท่านั้น (เช่น 538)\n   - ห้ามใส่เครื่องหมายคำพูดหรือหน่วย \"บาท\" ในฟิลด์ Amount\n\n2. **กรณีสนใจซื้อแต่ข้อมูลไม่ครบ:** - ถามชื่อและที่อยู่จัดส่ง\n   - **JSON:** Set `IsOrder: false`, `Amount` ให้คำนวณยอดรวมรอไว้เลย แต่ยังไม่ต้องยืนยันออเดอร์\n\n3. **กรณีแจ้งข้อมูลครบถ้วน:** - สรุปรายการหนังสือ ยอดรวมเงิน ชื่อ และที่อยู่ ใน Message\n   - **JSON:** Set `IsOrder: true`, ใส่ชื่อใน `Name`, ที่อยู่ใน `Address` และสรุปทุกอย่างใน `Description`\n\n# Output Format (Strictly JSON)\n{\n  \"Message\": \"ข้อความคุยกับลูกค้า สรุปยอดเงินที่ต้องชำระให้ชัดเจนในนี้ด้วย\",\n  \"Order\": {\n    \"Id\": \"รหัสหนังสือ หรือใส่ '-'\",\n    \"Date\": \"วันที่ปัจจุบัน (YYYY-MM-DD)\",\n    \"Description\": \"สรุปข้อมูลการสั่งซื้อทั้งหมด\",\n    \"Name\": \"ชื่อผู้สั่ง\",\n    \"Address\": \"ที่อยู่ผู้สั่ง\",\n    \"Amount\": 0,\n    \"IsOrder\": false\n  }\n}\n*หมายเหตุ: ฟิลด์ Amount ต้องเป็นผลรวมราคา (Price) เท่านั้น ไม่ใช่จำนวนเล่ม (Quantity)*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        144,
+        784
+      ],
+      "id": "d0c4716d-cf8b-489c-b586-573db1238112",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        992
+      ],
+      "id": "ad1123e0-9801-48f8-856f-06af403714ea",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "WGyPWPAun5DPQ8Km",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].messaging[0].sender.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        992
+      ],
+      "id": "ed7a6ad5-ca9c-4f63-873f-5b825dba2822",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "### Setting Reply Message\n[Doc](https://developers.facebook.com/docs/messenger-platform/reference/send-api/)\n1. Add http request node\n2. Set \"Post\" method\n3. Use URL \"https://graph.facebook.com/v25.0/{Page_ID}/messages\"\n4. Set header Authen\n5. Set body request\n`{\n  \"recipient\": { \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\" },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": { \"text\": \"hello, world\" }\n}`\n\nRemark:\n1. Authentication\n- Set authen\n-> Name = Authorization\n-> Token = Bearer {Token from Generat access token}\n2. Page Id\n- Check Page_ID from Token by [Page](https://developers.facebook.com/tools/debug/accesstoken/)",
+        "height": 464,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "52e67a2b-bbfe-46b0-b462-ebdb6eedef23",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v25.0/462168566985464/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": { \"id\": \"{{ $json.body.entry[0].messaging[0].sender.id }}\" },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": { \"text\": {{ JSON.stringify($json.output.Message) }} }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        816,
+        720
+      ],
+      "id": "2a1c4a9b-9d3c-4efb-b573-94b5a77733b4",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0NOutvypKVtqcZtk",
+          "name": "Facebook Page YodMuek"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-6GkzwN0cNVBiaYS2s_SE6peURKYap8CJp2MW-6YBso",
+          "mode": "list",
+          "cachedResultName": "Carp Demo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-6GkzwN0cNVBiaYS2s_SE6peURKYap8CJp2MW-6YBso/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Books",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-6GkzwN0cNVBiaYS2s_SE6peURKYap8CJp2MW-6YBso/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        288,
+        992
+      ],
+      "id": "f7913a95-346e-4040-983c-a97712e15431",
+      "name": "Get Books",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        608,
+        720
+      ],
+      "id": "47aada52-8696-462a-b154-14be0a5981b0",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"Message\": \"ข้อความตอบกลับ\",\n  \"Order\": {\n    \"Id\": \"ID-123\",\n    \"Date\": \"2024-03-21\",\n    \"Description\": \"รายการสินค้า\",\n    \"Name\": \"ชื่อผู้สั่ง\",\n    \"Address\": \"ที่อยู่ผู้สั่ง\",\n    \"Amount\": 0,\n    \"IsOrder\": false\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        992
+      ],
+      "id": "3e3b4b8a-c042-4a62-bb6d-692bbc9c1dd3",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Books": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3cb5c22b-f3b1-4909-9b07-9c6aa3584b51",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "987aa5d02e19bdc715b2f05f5fddc1adf395996c8e7fc6a84c858eeb3f120b44"
+  },
+  "id": "cAq2DtQzxrFFUtgP",
+  "tags": []
+}

@@ -1,0 +1,249 @@
+{
+  "name": "l6_trail",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "e666fd35-ba8f-4b9b-9d54-6b82054e4444",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1248,
+        -80
+      ],
+      "id": "3b9d673b-25f4-41e7-8385-56fe168bcfe2",
+      "name": "Webhook",
+      "webhookId": "e666fd35-ba8f-4b9b-9d54-6b82054e4444"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -784,
+        -240
+      ],
+      "id": "b9b71930-0d45-4f16-b285-96fde40f11fe",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00ee45a1-ece8-4259-9330-4fd9486c9bac",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "791ab55e-be7f-438e-a9c3-558882f81eab",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "Test@1234",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1024,
+        -224
+      ],
+      "id": "83b8e92c-3ce9-4b05-8854-4569d68d8358",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Role\nคุณคือ \"ผู้ช่วยสาวจากร้านหนังสือ CARB\" ที่เป็นกันเอง ใส่ใจลูกค้า และแม่นยำเรื่องการคำนวณยอดชำระ\n\n# Objective\n- แนะนำหนังสือและเก็บข้อมูลการสั่งซื้อ โดยต้องสรุปยอดเงินรวม (Amount) ให้ถูกต้องเสมอ\n\n# Logic & Workflow (สำคัญมาก)\n1. **การคำนวณยอดรวม (Amount):**\n   - ทุกครั้งที่ใช้ Tool `get_books` ให้ดึงราคาต่อหน่วยมาด้วย\n   - **Amount = (ราคาต่อหน่วย x จำนวนเล่ม)**\n   - ห้ามใส่จำนวนเล่มในฟิลด์ Amount ให้ใส่เฉพาะ \"ยอดรวมเงินที่เป็นตัวเลข\" เท่านั้น (เช่น 538)\n   - ห้ามใส่เครื่องหมายคำพูดหรือหน่วย \"บาท\" ในฟิลด์ Amount\n\n2. **กรณีสนใจซื้อแต่ข้อมูลไม่ครบ:** - ถามชื่อและที่อยู่จัดส่ง\n   - **JSON:** Set `IsOrder: false`, `Amount` ให้คำนวณยอดรวมรอไว้เลย แต่ยังไม่ต้องยืนยันออเดอร์\n\n3. **กรณีแจ้งข้อมูลครบถ้วน:** - สรุปรายการหนังสือ ยอดรวมเงิน ชื่อ และที่อยู่ ใน Message\n   - **JSON:** Set `IsOrder: true`, ใส่ชื่อใน `Name`, ที่อยู่ใน `Address` และสรุปทุกอย่างใน `Description`\n\n# Output Format (Strictly JSON)\n{\n  \"Message\": \"ข้อความคุยกับลูกค้า\",\n  \"Order\": {\n    \"Id\": \"รหัสหนังสือ หรือใส่ '-'\",\n    \"Date\": \"วันที่ปัจจุบัน (YYYY-MM-DD)\",\n    \"Description\": \"สรุปข้อมูลการสั่งซื้อทั้งหมด\",\n    \"Name\": \"ชื่อผู้สั่ง\",\n    \"Address\": \"ที่อยู่ผู้สั่ง\",\n    \"Amount\": 0,\n    \"IsOrder\": false\n  }\n}\n*หมายเหตุ: ฟิลด์ Amount ต้องเป็นผลรวมราคา (Price) เท่านั้น ไม่ใช่จำนวนเล่ม (Quantity)*\nกรณีไม่ใช่ Order ให้ค่าอื่นๆนอกจาก \"Message\" เป็น null"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -656,
+        224
+      ],
+      "id": "96501724-6a0d-4102-b513-42bde611e9bb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -784,
+        576
+      ],
+      "id": "d79d0228-c038-4b34-9fe1-9c6b474eb27e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "WGyPWPAun5DPQ8Km",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].messaging[0].sender.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -640,
+        576
+      ],
+      "id": "a6478c67-f1a8-4aae-8170-c362c6001a39",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-6GkzwN0cNVBiaYS2s_SE6peURKYap8CJp2MW-6YBso",
+          "mode": "list",
+          "cachedResultName": "Carp Demo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-6GkzwN0cNVBiaYS2s_SE6peURKYap8CJp2MW-6YBso/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Books",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-6GkzwN0cNVBiaYS2s_SE6peURKYap8CJp2MW-6YBso/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -496,
+        576
+      ],
+      "id": "7d506c2d-ebc9-41bf-bf0e-663f82cdfd20",
+      "name": "Get Books",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Books": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "77907bf4-d3eb-4ee7-944e-3ccf309eeca6",
+  "meta": {
+    "instanceId": "987aa5d02e19bdc715b2f05f5fddc1adf395996c8e7fc6a84c858eeb3f120b44"
+  },
+  "id": "fLeIyv8NHHTedgzz",
+  "tags": []
+}

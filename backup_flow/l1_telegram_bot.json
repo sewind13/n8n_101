@@ -1,0 +1,679 @@
+{
+  "name": "l1_telegram_bot",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Phase 1: Create Your Bot (Telegram Side)\nYou don't use your personal account directly; instead, you create a \"Bot\" that acts as the bridge.\n\nOpen Telegram and search for @BotFather (this is the official bot for managing other bots).\n\nSend the message: /newbot\n\nName your bot: Give it a display name (e.g., \"My n8n Assistant\").\n\nChoose a Username: It must be unique and end in bot (e.g., myn8n_test_bot).\n\nGet the Token: BotFather will reply with a long string of characters called the Access Token (e.g., 123456789:ABCdefGHIjklMNOpqrstUVwxyz).\n\nCopy this token; you will need it for n8n.\n**Result**\n\nDone! Congratulations on your new bot. You will find it at t.me/pluto_gold_bot. You can now add a description, about section and profile picture for your bot, see /help for a list of commands. By the way, when you've finished creating your cool bot, ping our Bot Support if you want a better username for it. Just make sure the bot is fully operational before you do this.\n\nUse this token to access the HTTP API:\n8513205193:AAH2XDWQenDMEdwq9i6rV22WulTuZ5ef3pI\nKeep your token secure and store it safely, it can be used by anyone to control your bot.\n\nFor a description of the Bot API, see this page: https://core.telegram.org/bots/api\n",
+        "height": 688,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1808,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "a8286a45-2e62-4ae9-8ab1-d2e29846c4be",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Phase 2: Connect n8n (Credentials)\nNow, let's introduce your new bot to n8n.\n\nOpen your n8n workflow.\n\nAdd a Telegram node (or click \"Credentials\" in the sidebar).\n\nIn the node settings, look for Credential to connect with and select Create New.\n\nChoose Telegram API.\n\nPaste the Access Token you got from BotFather in Phase 1.\n\nClick Save. If it says \"Connection Tested Successfully,\" you are connected.",
+        "height": 688,
+        "width": 528,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "f25cecc4-fd75-4612-bf85-0f6e6df9975e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### Phase 3: Get Your Chat ID\nThis is the step where most people get stuck. To send a message, n8n needs to know who to send it to (you).\n\nGo back to Telegram and start a chat with your new bot.\n\nSend it a simple message like \"Hello\". (The bot must receive a message first before it can reply).\n\nTo find your ID, you have two easy options:\n\nOption A (The UserInfo Bot): Search for @userinfobot in Telegram and click Start. It will immediately reply with your numeric ID (e.g., 123456789).\n\nOption B (Browser Method): Open your web browser and visit this URL (replace <YOUR_TOKEN> with the token from Phase 1): https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates Look for \"id\": inside the \"chat\" object in the text that appears.\n\n**Result**\nChatId: 6833953783",
+        "height": 688,
+        "width": 528,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "df2c887a-c4f5-437b-bd93-33bab429655f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Phase 4: Build a \"Send Message\" Workflow\nLet's make n8n send you a test message.\n\nAdd a Trigger: Use a Manual Trigger node (or \"On clicking 'Execute'\").\n\nAdd the Telegram Node: Connect it to the trigger.\n\nConfigure the Telegram Node:\n\nResource: Message\n\nOperation: Send Message\n\nChat ID: Paste the ID you found in Phase 3.\n\nText: Type \"Hello from n8n!\"\n\nTest: Click Execute Node.\n\nCheck your Telegram; your bot should have just messaged you.\n\nImportant Note on Groups\nIf you want the bot to post in a group instead of a private chat:\n\nAdd the bot to the group.\n\nYou must make the bot an Administrator of that group (otherwise it can't read messages to find the Chat ID).\n\nGroup IDs usually start with a negative sign (e.g., -100123456789).",
+        "height": 688,
+        "width": 528,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "4bd3a118-068c-44b4-a615-6f8c56abf5af",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "url": "https://xn--42cah7d0cxcvbbb9x.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1392,
+        304
+      ],
+      "id": "8d4c23b2-717d-413b-bcf5-f8ce9d0efb98",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "from lxml import html\n\ndata = _input.first()\nhtml_content = data['json']['data']\ntree = html.fromstring(html_content)\n\n# Path\ntitle_path = '//*[@id=\"rightCol\"]/div[1]/h3'\ndate_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[4]/td[1]'\ntime_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[4]/td[2]'\nnumber_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[4]/td[3]'\ngold_bar_buy_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[1]/td[2]'\ngold_bar_sell_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[1]/td[3]'\ngold_jewelry_buy_path = '/html/body/div[1]/section/div[2]/div[2]/div[1]/table/tbody/tr[2]/td[2]'\ngold_jewelry_sell_path = '/html/body/div[1]/section/div[2]/div[2]/div[1]/table/tbody/tr[2]/td[3]'\ntrend_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[3]/td[2]/span'\ntrend_size_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[3]/td[3]'\ndaily_trend_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[3]/td[1]/span'\ndaily_trend_size_path = '//*[@id=\"rightCol\"]/div[1]/table/tbody/tr[3]/td[1]/text()[2]'\n\n\n# Elements\ntitle = tree.xpath(title_path)[0].text_content().strip()\ndate = tree.xpath(date_path)[0].text_content().strip()\ntime = tree.xpath(time_path)[0].text_content().strip()\nnumber = tree.xpath(number_path)[0].text_content().strip()\ngold_bar_buy = tree.xpath(gold_bar_buy_path)[0].text_content().strip()\ngold_bar_sell = tree.xpath(gold_bar_sell_path)[0].text_content().strip()\ngold_jewelry_buy = tree.xpath(gold_jewelry_buy_path)[0].text_content().strip()\ngold_jewelry_sell = tree.xpath(gold_jewelry_sell_path)[0].text_content().strip()\ntrend = tree.xpath(trend_path)[0].get(\"class\").split(\"-\")[-1]\ntrend_size = tree.xpath(trend_size_path)[0].text_content().strip()\ndaily_trend = tree.xpath(daily_trend_path)[0].get(\"class\").split(\"-\")[-1]\ndaily_trend_size = tree.xpath(daily_trend_size_path)[0].strip()\n\ndef get_trend_in_thai(t):\n  if t == \"down\":\n    return \"⬇️\"\n  elif t == \"up\":\n    return '⬆️'\n  else:\n    return '🟨'\n\nreturn {\"title\": title,\n        \"date\": date,\n        \"time\": time,\n        \"number\": number,\n       \"gold_bar_buy\": gold_bar_buy,\n       \"gold_bar_sell\": gold_bar_sell,\n       \"gold_jewelry_buy\": gold_jewelry_buy,\n       \"old_jewelry_sell\": gold_jewelry_sell,\n       \"trend\": get_trend_in_thai(trend),\n       \"trend_size\": trend_size,\n       \"daily_trend\": get_trend_in_thai(daily_trend),\n        \"daily_trend_size\": daily_trend_size\n       }"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1184,
+        304
+      ],
+      "id": "e8e4a632-0bf9-4ba1-8c9e-c1f7a4222847",
+      "name": "Code in Python (Beta)"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "6833953783",
+        "file": "https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📈 ดูกราฟย้อนหลัง",
+                    "additionalFields": {
+                      "url": "https://xn--42cah7d0cxcvbbb9x.com/"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "=<b>⚜️ ราคาทองคำสมาคมฯ</b>\n🗓 <i>{{ $json.date }} {{ $json.time }} {{ $json.number }}</i>\n\n──────────────────\n<b>ทองคำแท่ง 96.5%</b>\nรับซื้อ : <code>{{ $json.gold_bar_buy }}</code>\nขายออก : <code>{{ $json.gold_bar_sell }}</code>\n\n<b>ทองรูปพรรณ 96.5%</b>\nรับซื้อ : <code>{{ $json.gold_jewelry_buy }}</code>\nขายออก : <code>{{ $json.old_jewelry_sell }}</code>\n──────────────────\n\n<b>📊 สรุปภาวะตลาด</b>\n| <b>เปลี่ยนแปลง</b>: <code>{{ $json.trend }} {{ $json.trend_size }}</code>\n| <b>ภาพรวม</b>: <code>{{ $json.daily_trend }} {{ $json.daily_trend_size }}</code>",
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        352
+      ],
+      "id": "e27d4040-4159-452d-9820-9b245acf7d44",
+      "name": "Send a photo message",
+      "webhookId": "977b9c74-ab69-45ba-97ac-2164f02ddbf3",
+      "credentials": {
+        "telegramApi": {
+          "id": "xSgPUO0YjSVpJpbh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1680,
+        400
+      ],
+      "id": "54a85e20-ba5e-4c22-ac0f-24b734d10972",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "content": "### ส่วนที่ 1: เตรียม Project ใน Google Cloud\n- เข้าไปที่เว็บ [Google Cloud Console](https://console.cloud.google.com/welcome/new?pli=1)\n- ล็อกอินด้วย Gmail ที่คุณจะใช้เก็บไฟล์\n- มุมซ้ายบน (ข้างโลโก้ Google Cloud) คลิกเลือก Project แล้วกด \"New Project\"\n- ตั้งชื่อ Project (เช่น n8n-automation) แล้วกด Create\n- รอสักพัก แล้ว เลือก Project ที่เพิ่งสร้างขึ้นมา",
+        "height": 208,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "ff022d4c-3e2e-41dd-a21d-142a913799df",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### ส่วนที่ 2: เปิดใช้งาน Google Sheets API\n- ในแถบค้นหาด้านบนสุด พิมพ์ว่า Google Sheets API\n- คลิกผลลัพธ์ที่เจอ แล้วกดปุ่ม Enable (สีฟ้า)\n- (แนะนำเพิ่ม) ทำแบบเดิมอีกครั้ง ค้นหา Google Drive API แล้วกด Enable (เผื่อไว้อนาคตครับ)",
+        "height": 208,
+        "width": 528,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "3c063a36-85f8-411b-9369-79300ce3eb17",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "### ส่วนที่ 3: ตั้งค่าหน้าจอยินยอม (OAuth Consent Screen)\nขั้นตอนนี้สำคัญมาก ถ้าข้ามไปจะเชื่อมต่อไม่ได้\n- ที่เมนูขีดสามขีด (Hamburger Menu) มุมซ้ายบน ไปที่ APIs & Services > OAuth consent screen\n- User Type:\n- ถ้าใช้ Gmail ธรรมดา (@gmail.com) -> เลือก External\n- ถ้าใช้ Google Workspace องค์กร -> เลือก Internal\n- กด Create\n- App Information:\n- App name: ตั้งชื่ออะไรก็ได้ (เช่น My n8n)\n- User support email: เลือกอีเมลเรา\n- Developer contact information: ใส่อีเมลเราอีกรอบ\n- กด Save and Continue\n- Scopes: กดข้ามได้เลย (Save and Continue)\n- Test Users: (สำคัญมากสำหรับโหมด External)\n- กด + ADD USERS\n- พิมพ์อีเมล Gmail ของคุณเองลงไป (อีเมลเดียวกับที่จะใช้เชื่อมต่อ)\n- กด Save and Continue\n- กดกลับไปที่ Dashboard",
+        "height": 480,
+        "width": 528,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "4e9adc31-6158-4016-b031-b64f3e454b92",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "### ส่วนที่ 4: สร้างกุญแจ (Credentials) และเชื่อมกับ n8n\nขั้นตอนนี้ต้องสลับหน้าจอไปมาระหว่าง n8n กับ Google Cloud\n\nฝั่ง n8n:\n- เปิด Node Google Sheets > Credentials > Create New\n- เลือกประเภท Google Sheets OAuth2 API\n- คุณจะเห็นช่อง OAuth Redirect URL (หน้าตาประมาณ https://your-n8n-instance.com/rest/oauth2-credential/callback)\n- กดปุ่ม Copy URL นี้เก็บไว้\n- ฝั่ง Google Cloud Console:\n- ไปที่เมนู Credentials (ด้านซ้าย)\n- กด + CREATE CREDENTIALS (ด้านบน) > เลือก OAuth client ID\n- Application type: เลือก Web application\n- Name: ตั้งชื่อ (เช่น n8n Client)\n- เลื่อนลงมาที่หัวข้อ Authorized redirect URIs\n- กด + ADD URI\n- วาง URL ที่ Copy มาจาก n8n ลงไปในช่องนี้\n- กด Create\n- Google จะโชว์หน้าต่างที่มี Client ID และ Client Secret ขึ้นมา",
+        "height": 480,
+        "width": 528,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1088,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "57a791a6-1f01-4f2b-989f-e1cfd561963d",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "### ส่วนที่ 4: สร้างกุญแจ (Credentials) และเชื่อมกับ n8n\nขั้นตอนนี้ต้องสลับหน้าจอไปมาระหว่าง n8n กับ Google Cloud\n\nฝั่ง n8n:\n- เปิด Node Google Sheets > Credentials > Create New\n- เลือกประเภท Google Sheets OAuth2 API\n- คุณจะเห็นช่อง OAuth Redirect URL (หน้าตาประมาณ https://your-n8n-instance.com/rest/oauth2-credential/callback)\n- กดปุ่ม Copy URL นี้เก็บไว้\n- ฝั่ง Google Cloud Console:\n- ไปที่เมนู Credentials (ด้านซ้าย)\n- กด + CREATE CREDENTIALS (ด้านบน) > เลือก OAuth client ID\n- Application type: เลือก Web application\n- Name: ตั้งชื่อ (เช่น n8n Client)\n- เลื่อนลงมาที่หัวข้อ Authorized redirect URIs\n- กด + ADD URI\n- วาง URL ที่ Copy มาจาก n8n ลงไปในช่องนี้\n- กด Create\n- Google จะโชว์หน้าต่างที่มี Client ID และ Client Secret ขึ้นมา",
+        "height": 480,
+        "width": 528,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1088,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "d20cb049-d36a-4ebc-9b53-90d9829e1f87",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "### ส่วนที่ 4: สร้างกุญแจ (Credentials) และเชื่อมกับ n8n\nขั้นตอนนี้ต้องสลับหน้าจอไปมาระหว่าง n8n กับ Google Cloud\n\nฝั่ง n8n:\n- เปิด Node Google Sheets > Credentials > Create New\n- เลือกประเภท Google Sheets OAuth2 API\n- คุณจะเห็นช่อง OAuth Redirect URL (หน้าตาประมาณ https://your-n8n-instance.com/rest/oauth2-credential/callback)\n- กดปุ่ม Copy URL นี้เก็บไว้\n- ฝั่ง Google Cloud Console:\n- ไปที่เมนู Credentials (ด้านซ้าย)\n- กด + CREATE CREDENTIALS (ด้านบน) > เลือก OAuth client ID\n- Application type: เลือก Web application\n- Name: ตั้งชื่อ (เช่น n8n Client)\n- เลื่อนลงมาที่หัวข้อ Authorized redirect URIs\n- กด + ADD URI\n- วาง URL ที่ Copy มาจาก n8n ลงไปในช่องนี้\n- กด Create\n- Google จะโชว์หน้าต่างที่มี Client ID และ Client Secret ขึ้นมา",
+        "height": 480,
+        "width": 528,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1632,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "08731312-ce50-4379-93a7-0216c6501cd0",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Lvs-cIRDX1cgRwo9JhX0KgYioJgDBtoS4nn8f7KyD-E",
+          "mode": "list",
+          "cachedResultName": "Gold price tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lvs-cIRDX1cgRwo9JhX0KgYioJgDBtoS4nn8f7KyD-E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lvs-cIRDX1cgRwo9JhX0KgYioJgDBtoS4nn8f7KyD-E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "number": "={{ $json.number }}",
+            "gold_bar_buy": "={{ $json.gold_bar_buy }}",
+            "gold_bar_sell": "={{ $json.gold_bar_sell }}",
+            "gold_jewelry_buy": "={{ $json.gold_jewelry_buy }}",
+            "gold_jewely_sell": "={{ $json.old_jewelry_sell }}",
+            "trend": "={{ $json.trend }}",
+            "trend_size": "={{ $json.trend_size }}",
+            "daily_trend": "={{ $json.daily_trend }}",
+            "daily_trend_size": "={{ $json.daily_trend_size }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "number",
+              "displayName": "number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gold_bar_buy",
+              "displayName": "gold_bar_buy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gold_bar_sell",
+              "displayName": "gold_bar_sell",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gold_jewelry_buy",
+              "displayName": "gold_jewelry_buy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "gold_jewely_sell",
+              "displayName": "gold_jewely_sell",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "trend",
+              "displayName": "trend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "trend_size",
+              "displayName": "trend_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "daily_trend",
+              "displayName": "daily_trend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "daily_trend_size",
+              "displayName": "daily_trend_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        16,
+        512
+      ],
+      "id": "74162427-8c61-4456-8e51-29c8f59b59e6",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Lvs-cIRDX1cgRwo9JhX0KgYioJgDBtoS4nn8f7KyD-E",
+          "mode": "list",
+          "cachedResultName": "Gold price tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lvs-cIRDX1cgRwo9JhX0KgYioJgDBtoS4nn8f7KyD-E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lvs-cIRDX1cgRwo9JhX0KgYioJgDBtoS4nn8f7KyD-E/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1392,
+        512
+      ],
+      "id": "abb75098-baa6-4008-867f-15dfce490d9e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        512
+      ],
+      "id": "a495f3ac-1dc4-48fe-984c-fbe20018b212",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ce4f54a0-1392-4f09-93c8-4ef67636a558",
+              "leftValue": "={{ $json.date }}",
+              "rightValue": "={{ $json.old_date }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "7cf9d449-dbd4-4bc9-bc4e-685368169963",
+              "leftValue": "={{ $json.time }}",
+              "rightValue": "={{ $json.old_time }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "235d22ee-4e3d-4964-91b9-e19bd62830a2",
+              "leftValue": "={{ $json.number }}",
+              "rightValue": "={{ $json.old_number }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -480,
+        400
+      ],
+      "id": "4962ffed-9d0c-4d2e-9c88-23092bd09308",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18a211b1-13c9-4f78-a68c-540d84775532",
+              "name": "old_date",
+              "value": "={{ $json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "f274f8c2-1710-4c57-bc67-b7bf1a19636b",
+              "name": "old_time",
+              "value": "={{ $json.time }}",
+              "type": "string"
+            },
+            {
+              "id": "85f227c4-ccd3-4744-b929-c0e36781d10d",
+              "name": "old_number",
+              "value": "={{ $json.number }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1040,
+        512
+      ],
+      "id": "3cae08ca-7c7a-4ade-9752-7bc06e9b5ef3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -704,
+        400
+      ],
+      "id": "701ee912-91d3-4bf4-9260-cb189c23d809",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in Python (Beta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python (Beta)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8a3422a1-4c53-4344-97b3-13e05328243e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "987aa5d02e19bdc715b2f05f5fddc1adf395996c8e7fc6a84c858eeb3f120b44"
+  },
+  "id": "eZvRdvOkHFyXXpR9",
+  "tags": []
+}

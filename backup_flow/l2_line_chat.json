@@ -1,0 +1,414 @@
+{
+  "name": "l2_line_chat",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Setup Line \n1. Login to [Line Console](https://developers.line.biz/)\n2. Create Provider\n3. Create Message API channel\n4. Verify account by follow Line instruction",
+        "height": 304,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "c3e368b0-58b4-43ce-9a23-24fbe98c6c99",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "1e97ee1e-1ea2-4fce-aeb6-29edb3f7378d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -944,
+        288
+      ],
+      "id": "1c3e0d30-bd6c-43fe-a669-4fb4f141201c",
+      "name": "Webhook",
+      "webhookId": "1e97ee1e-1ea2-4fce-aeb6-29edb3f7378d"
+    },
+    {
+      "parameters": {
+        "content": "### Setup Webhook\n1. Create Webhook node\n2. Select the \"Post\" method\n3. Click Request\n4. Copy listening URL\n5. Go to [Line Developer](https://developers.line.biz/console/)\n6. Select Channel\n7. Select **Message API** tab\n8. Go to webhook setting.\n9. Pass url from number 4\n10. Clicks verify.\n11. Enable **User Webhook**",
+        "height": 304,
+        "width": 304,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "b9cbadf9-b0fb-4a3d-9758-ea0cd120e60f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42affe94-ba98-45b8-b84c-aae30b5a91c8",
+              "name": "displayName",
+              "value": "={{ $json.displayName }}",
+              "type": "string"
+            },
+            {
+              "id": "ea9a5569-be2f-46a0-b57d-8ef523a4d13c",
+              "name": "body.events[0].message.text",
+              "value": "={{ $('Webhook').item.json.body.events[0].message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "062e9da7-b785-402b-b3b5-cc6f8da84a09",
+              "name": "body.events[0].replyToken",
+              "value": "={{ $('Webhook').item.json.body.events[0].replyToken }}",
+              "type": "string"
+            },
+            {
+              "id": "57827140-8185-43f3-ae75-74b1be34a580",
+              "name": "body.events[0].source.userId",
+              "value": "={{ $('Webhook').item.json.body.events[0].source.userId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -512,
+        288
+      ],
+      "id": "f2fbd0bf-c6ba-4b4a-8adf-a0033f29dda4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "=define",
+        "text": "={{ $json.body.events[0].message.text }}",
+        "options": {
+          "systemMessage": "เป็นผู้ช่วยจัดการการเบิกเงิน ถ้ามีการส่งข้อความเรื่องอื่นที่ไม่เกี่ยวกับการเบิกเงินให้ตอบว่า \"ฉันทำได้แค่รับเรื่องการเบิกเงินเท่านั้นในตอนนี้\" ถ้าคนใช้งานพิมพ์ข้อความเกี่ยวกับการเบิกเงินให้ตอบว่า \"รับทราบ\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -336,
+        288
+      ],
+      "id": "f4dc91b5-6a84-43e0-b6ff-925ccd0e5e94",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        496
+      ],
+      "id": "45c23ba9-f978-41b0-9409-91cebb776256",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "WGyPWPAun5DPQ8Km",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"replyToken\":\"{{ $('Edit Fields').item.json.body.events[0].replyToken }}\",\n    \"messages\":[\n        {\n            \"type\":\"text\",\n            \"text\": {{ JSON.stringify($json.output) }}\n        }\n    ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        16,
+        288
+      ],
+      "id": "6daeef71-6f04-414e-9b14-4d495220ebfe",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "### Setup Edit field\n1. Click request on Webhook node.\n2. Send the real message on the Line application.\n3. Create Edit Fields\n4. Select 2 data\n- Text\n- Reply token",
+        "height": 304,
+        "width": 304,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "8cf0c62d-5005-4643-a56b-c8c1d8cdddf0",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Setup Post\n1. Create HTTP request node\n2. Select method to be POST\n3. Select the URL base on the \n- [Doc](https://developers.line.biz/en/reference/messaging-api/#send-reply-message)\n- Method send reply message \n4. Set authentication to be **Generic Credential Type**\n5. Select Generaic Auth to be **Header Auth Account**\n- Name = Authorization\n- Value = Bearer {Token}\n\n** Token **\nFind by \n- Go to [Line Console] \n- Choose channel\n- Go to buttom of the page an issue the token",
+        "height": 384,
+        "width": 384,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        112,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "1f45de52-0435-4515-8652-54cad595a10b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Remark\n** Don't forget to change the webhook URL to be Production when we go to prod **\n** Output text with correct json format use \n\n\"text\": {{ JSON.stringify($json.output) }}",
+        "height": 224,
+        "width": 304,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "218989bf-aff9-4a36-8f5d-642f24c390a5",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.events[0].source.userId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -256,
+        496
+      ],
+      "id": "7b4fe5de-e896-43bd-8e2e-e02ef9127c45",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "02640ff9-0f1b-4e97-a8b0-627bc1271432",
+              "leftValue": "={{ !!$json.error }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        288
+      ],
+      "id": "b0d77393-49b0-453f-aeef-68c5d9f94ac3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"replyToken\":\"{{ $('Edit Fields').item.json.body.events[0].replyToken }}\",\n    \"messages\":[\n        {\n            \"type\":\"text\",\n            \"text\": \"Bot has an issue, please contract developer team\"\n        }\n    ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        416
+      ],
+      "id": "6c670b4f-156d-42e4-b4c7-e0040336a80f",
+      "name": "Line Message When Error",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.line.me/v2/bot/profile/{{ $json.body.events[0].source.userId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -752,
+        288
+      ],
+      "id": "e7965582-a9ce-43f9-8727-0fe6b8a2d31d",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Line Message When Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "de8de092-0d09-4015-bcc5-2d4b29f1894b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "987aa5d02e19bdc715b2f05f5fddc1adf395996c8e7fc6a84c858eeb3f120b44"
+  },
+  "id": "j7tUuXSS2RakkaDi",
+  "tags": []
+}
