@@ -561,6 +561,22 @@
       ],
       "id": "701ee912-91d3-4bf4-9260-cb189c23d809",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "content": "แก้ปัญหา refreh token exprire แล้วต้อง login ใหม่\n\n=> เปลี่ยนสถานะแอปจาก Testing เป็น Production (สำคัญที่สุด)\nถ้าโปรเจกต์ของคุณใน Google Cloud ยังอยู่ในสถานะ \"Testing\" ตัว Token จะมีอายุแค่ 7 วัน พอครบกำหนดมันจะบังคับให้คุณ Sign in ใหม่ครับ\n\nวิธีแก้: ไปที่ Google Cloud Console\n\nเลือกโปรเจกต์ของคุณ -> ไปที่เมนู APIs & Services > OAuth consent screen\n\nมองหาหัวข้อ Publishing status แล้วกดปุ่ม \"PUBLISH APP\"\n\nเมื่อสถานะเป็น In Production แล้ว Token จะไม่หมดอายุทุก 7 วันครับ (ยกเว้นคุณจะไม่ได้ใช้งานเลยเกิน 6 เดือน)\n\n** Menu publish จะไปอยู่ใต้ menu \"Audience\"",
+        "height": 480,
+        "width": 528,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        576,
+        528
+      ],
+      "typeVersion": 1,
+      "id": "cb8cf03d-efd5-4a84-9a2f-3a94492c1bfc",
+      "name": "Sticky Note10"
     }
   ],
   "pinData": {},
