@@ -1,0 +1,464 @@
+{
+  "name": "l3b_reimbursement_expiry",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -660,
+        0
+      ],
+      "id": "2f0dc163-cbb0-43be-9bd5-cb9ce0736c58",
+      "name": "Daily 09:00"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4",
+          "mode": "list",
+          "cachedResultName": "reimbursement_tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "รอหลักฐาน"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -440,
+        0
+      ],
+      "id": "62e8e6cf-2bc9-489b-b34f-b1f3c04777c5",
+      "name": "Read Pending Claims",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Date in the sheet is dd-MM-yyyy (written by the main flow).\nconst WARN_DAYS = 5;\nconst EXPIRE_DAYS = 7;\n\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\n\nconst out = [];\nfor (const item of $input.all()) {\n  const r = item.json;\n  if (!r || !r.Id || !r.Date) continue;\n\n  const [d, m, y] = String(r.Date).split('-').map(Number);\n  if (!d || !m || !y) continue;            // unparseable date -> leave it alone\n  const created = new Date(y, m - 1, d);\n  created.setHours(0, 0, 0, 0);\n\n  const ageDays = Math.floor((today - created) / 86400000);\n  if (ageDays < 0) continue;               // clock skew / future-dated row\n\n  let bucket = 'none';\n  if (ageDays >= EXPIRE_DAYS) bucket = 'expire';\n  else if (ageDays === WARN_DAYS) bucket = 'warn';   // exactly once, not every day after\n  if (bucket === 'none') continue;\n\n  out.push({ json: { ...r, ageDays, bucket, expireDays: EXPIRE_DAYS } });\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        0
+      ],
+      "id": "e41be0f8-107a-46f7-ad1e-1d5d19380290",
+      "name": "Classify by Age"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "447920a0-eea2-4bd9-8334-9a61c8126701",
+                    "leftValue": "={{ $json.bucket }}",
+                    "rightValue": "expire",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "expire"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8b86263d-9e1a-4077-b540-929a830d11f6",
+                    "leftValue": "={{ $json.bucket }}",
+                    "rightValue": "warn",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "warn"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a1c85d90-600a-4168-800c-d660a4d53ac3",
+      "name": "Expire or Warn?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4",
+          "mode": "list",
+          "cachedResultName": "reimbursement_tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $json.Id }}",
+            "Status": "ยกเลิก (ไม่มีหลักฐาน)"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "UserId",
+              "displayName": "UserId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "SlipUrl",
+              "displayName": "SlipUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        -120
+      ],
+      "id": "6aa87690-c007-4dea-a154-3ceb7e201216",
+      "name": "Cancel Claim",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07b3102f-6e16-459f-846d-1abecf59cefe",
+              "name": "UserId",
+              "value": "={{ $('Classify by Age').item.json.UserId }}",
+              "type": "string"
+            },
+            {
+              "id": "ad1b9b64-6ddb-4fac-bba2-bc9826b8fb7f",
+              "name": "Id",
+              "value": "={{ $('Classify by Age').item.json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "50327f26-cd36-44fb-a95f-5f2606fb8f2d",
+              "name": "Description",
+              "value": "={{ $('Classify by Age').item.json.Description }}",
+              "type": "string"
+            },
+            {
+              "id": "697cbf9e-5f87-45e7-8502-da765d6f5f91",
+              "name": "Amount",
+              "value": "={{ $('Classify by Age').item.json.Amount }}",
+              "type": "string"
+            },
+            {
+              "id": "b8fe6241-00a8-43bf-9cf9-74e866ae1103",
+              "name": "ageDays",
+              "value": "={{ $('Classify by Age').item.json.ageDays }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        -120
+      ],
+      "id": "e3c776f4-ecd5-491a-8254-ece3e1baf965",
+      "name": "Carry Row Forward"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"{{ $json.UserId }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"ใบเบิก {{ $json.Id }} ({{ $json.Description }} {{ $json.Amount }} บาท) ถูกยกเลิกแล้ว\\nเพราะไม่ได้แนบสลิปภายใน 7 วัน\\nถ้ายังต้องการเบิก พิมพ์รายการเข้ามาใหม่พร้อมแนบสลิปได้เลยครับ\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        680,
+        -120
+      ],
+      "id": "a9eca075-64f8-416f-8bfb-3c776fef2762",
+      "name": "Notify Cancelled",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"{{ $json.UserId }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"เตือนนะครับ ใบเบิก {{ $json.Id }} ({{ $json.Description }} {{ $json.Amount }} บาท) ยังไม่ได้แนบสลิป\\nอีก {{ $json.expireDays - $json.ageDays }} วันจะถูกยกเลิกอัตโนมัติ\\nส่งรูปสลิปเข้ามาแล้วเลือกใบนี้ได้เลย\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        240,
+        120
+      ],
+      "id": "bb008b40-3c63-4e3c-bd97-2c0f0341b49f",
+      "name": "Notify Reminder",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily 09:00": {
+      "main": [
+        [
+          {
+            "node": "Read Pending Claims",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pending Claims": {
+      "main": [
+        [
+          {
+            "node": "Classify by Age",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify by Age": {
+      "main": [
+        [
+          {
+            "node": "Expire or Warn?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expire or Warn?": {
+      "main": [
+        [
+          {
+            "node": "Cancel Claim",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Claim": {
+      "main": [
+        [
+          {
+            "node": "Carry Row Forward",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carry Row Forward": {
+      "main": [
+        [
+          {
+            "node": "Notify Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5f7f0cd-83c5-4188-82ed-352efb5f5c4b",
+  "meta": {
+    "instanceId": "987aa5d02e19bdc715b2f05f5fddc1adf395996c8e7fc6a84c858eeb3f120b44"
+  },
+  "id": "l3bReimbExpiry01",
+  "tags": []
+}

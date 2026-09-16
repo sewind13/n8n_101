@@ -10,37 +10,151 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -160,
-        -96
+        -720,
+        0
       ],
-      "id": "b71e33d8-84ff-4f23-bc5a-65f62931ee02",
+      "id": "8a10a7bc-558a-42a0-b45a-69236c12e2aa",
       "name": "Webhook",
       "webhookId": "1e97ee1e-1ea2-4fce-aeb6-29edb3f7378d"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "47e7965c-c639-4db4-8ab6-057e6bd7e405",
+                    "leftValue": "={{ $json.body.events[0].type === 'postback' ? 'postback' : ($json.body.events[0].message && $json.body.events[0].message.type === 'text') ? 'text' : ($json.body.events[0].message && $json.body.events[0].message.type === 'image') ? 'image' : 'other' }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f30831f5-b584-45c1-ac91-747532891e5b",
+                    "leftValue": "={{ $json.body.events[0].type === 'postback' ? 'postback' : ($json.body.events[0].message && $json.body.events[0].message.type === 'text') ? 'text' : ($json.body.events[0].message && $json.body.events[0].message.type === 'image') ? 'image' : 'other' }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "daf01122-c241-4d8e-9af6-f68489589aec",
+                    "leftValue": "={{ $json.body.events[0].type === 'postback' ? 'postback' : ($json.body.events[0].message && $json.body.events[0].message.type === 'text') ? 'text' : ($json.body.events[0].message && $json.body.events[0].message.type === 'image') ? 'image' : 'other' }}",
+                    "rightValue": "postback",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "postback"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "other"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -500,
+        0
+      ],
+      "id": "61074d70-7242-4030-a2d3-bf346e7283cd",
+      "name": "Route Event"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.line.me/v2/bot/profile/{{ $json.body.events[0].source.userId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -260,
+        -400
+      ],
+      "id": "4e297fc2-8c98-423d-937e-f8f2ae51b72b",
+      "name": "Get LINE Profile",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      }
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
             {
-              "id": "42affe94-ba98-45b8-b84c-aae30b5a91c8",
+              "id": "1e81715f-fbe7-46b2-893a-b0b81aa9b062",
               "name": "displayName",
               "value": "={{ $json.displayName }}",
               "type": "string"
             },
             {
-              "id": "ea9a5569-be2f-46a0-b57d-8ef523a4d13c",
+              "id": "6342a79c-700f-450b-a4ec-0b1caaea5140",
               "name": "body.events[0].message.text",
               "value": "={{ $('Webhook').item.json.body.events[0].message.text }}",
               "type": "string"
             },
             {
-              "id": "062e9da7-b785-402b-b3b5-cc6f8da84a09",
+              "id": "a0249517-f536-4e83-bd8a-3621f512b808",
               "name": "body.events[0].replyToken",
               "value": "={{ $('Webhook').item.json.body.events[0].replyToken }}",
               "type": "string"
             },
             {
-              "id": "57827140-8185-43f3-ae75-74b1be34a580",
+              "id": "d66d16ed-8fb8-43fc-bf7b-bdc8e0de9b2e",
               "name": "body.events[0].source.userId",
               "value": "={{ $('Webhook').item.json.body.events[0].source.userId }}",
               "type": "string"
@@ -52,10 +166,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        272,
-        -96
+        -40,
+        -400
       ],
-      "id": "8bccdf16-d874-43f8-b275-03f3ea8b49d3",
+      "id": "8e91c19d-e168-4b15-a167-edcb491db0b0",
       "name": "Edit Fields"
     },
     {
@@ -64,16 +178,16 @@
         "text": "={{ $json.body.events[0].message.text }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "=คุณคือผู้ช่วยจัดการการเบิกเงินอัตโนมัติ (Reimbursement Assistant)\nทำหน้าที่สกัดข้อมูลจากข้อความของผู้ใช้ให้อยู่ในรูปแบบ JSON เท่านั้น\n\n**เงื่อนไขการตอบโต้:**\n1. ถ้าข้อความ \"เกี่ยวกับการเบิกเงิน\": \n   - สกัดข้อมูลใส่ในฟิลด์: requester_name, item, amount (ตัวเลขเท่านั้น)\n   - is_reimbursement = true\n2. ถ้าข้อความ \"ไม่เกี่ยวกับการเบิกเงิน\":\n   - ให้ฟิลด์ข้อมูลอื่น (name, item, amount) เป็น null\n   - is_reimbursement = false\n\n**รูปแบบผลลัพธ์ (JSON Output เท่านั้น) ถ้าข้อความเกี่ยวกับการเบิกเงิน:**\n{\n  \"item\": \"รายการที่เบิก\",\n  \"amount\": 500,\n  \"is_reimbursement\": true\n}\n\n**รูปแบบผลลัพธ์ (JSON Output เท่านั้น) ถ้าข้อความไม่เกี่ยวกับการเบิกเงิน:**\n{\n  \"item\": \"\",\n  \"amount\": 0,\n  \"is_reimbursement\": false\n}"
+          "systemMessage": "=คุณคือผู้ช่วยจัดการการเบิกเงินอัตโนมัติ (Reimbursement Assistant)\nทำหน้าที่สกัดข้อมูลจากข้อความของผู้ใช้ให้อยู่ในรูปแบบ JSON เท่านั้น\n\n**สำคัญ: ตัดสินจากข้อความที่ได้รับในครั้งนี้เท่านั้น ห้ามนำข้อมูลจากข้อความก่อนหน้ามาเติม**\nถ้าข้อความกำกวม ไม่ระบุรายการหรือจำนวนเงินชัดเจน ให้ถือว่า is_reimbursement = false\n\n**เงื่อนไขการตอบโต้:**\n1. ถ้าข้อความ \"เกี่ยวกับการเบิกเงิน\" และระบุทั้งรายการและจำนวนเงิน:\n   - สกัดข้อมูลใส่ในฟิลด์: item, amount (ตัวเลขเท่านั้น)\n   - is_reimbursement = true\n2. กรณีอื่นทั้งหมด:\n   - item = \"\" , amount = 0\n   - is_reimbursement = false\n\n**รูปแบบผลลัพธ์ (JSON เท่านั้น):**\n{\n  \"item\": \"รายการที่เบิก\",\n  \"amount\": 500,\n  \"is_reimbursement\": true\n}"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        528,
-        -96
+        200,
+        -400
       ],
-      "id": "3d8cb4bf-ff69-4674-9789-fbcc42f64641",
+      "id": "b68531df-37cd-4b13-a0c1-ed3c4ce71a21",
       "name": "AI Agent"
     },
     {
@@ -90,10 +204,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        368,
-        112
+        200,
+        -180
       ],
-      "id": "4624bef5-ece3-417a-8032-70dbfd092418",
+      "id": "213061d4-9d93-4c3c-a4b9-c9328aa76916",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
@@ -104,130 +218,16 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.line.me/v2/bot/message/reply",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"replyToken\":\"{{ $('Edit Fields').item.json.body.events[0].replyToken }}\",\n    \"messages\":[\n        {\n            \"type\":\"text\",\n            \"text\": \"ลงทะเบียนการเบิกเงินเรียบร้อย id: {{ $json.Id }} เป็นค่า {{ $json.Description }} จำนวนเงิน {{ $json.Amount }}\"\n        }\n    ]\n}",
-        "options": {
-          "response": {}
-        }
+        "jsonSchemaExample": "{\n  \"item\": \"รายการที่เบิก\",\n  \"amount\": 500,\n  \"is_reimbursement\": true\n}"
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1616,
-        -272
-      ],
-      "id": "cab79b78-bd5d-49e8-afa8-f40d1f55d43e",
-      "name": "HTTP Request",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "1BHotkwd7yt1vNvL",
-          "name": "Line Token"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $json.body.events[0].source.userId }}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        528,
-        112
+        380,
+        -180
       ],
-      "id": "f9ae6014-595c-4b15-97af-bd20072a3361",
-      "name": "Simple Memory"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "02640ff9-0f1b-4e97-a8b0-627bc1271432",
-              "leftValue": "={{ !!$json.error }}",
-              "rightValue": 200,
-              "operator": {
-                "type": "boolean",
-                "operation": "false",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        1808,
-        -272
-      ],
-      "id": "8e166ea5-8839-4416-a371-61fa7f6c7813",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.line.me/v2/bot/message/reply",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"replyToken\":\"{{ $('Edit Fields').item.json.body.events[0].replyToken }}\",\n    \"messages\":[\n        {\n            \"type\":\"text\",\n            \"text\": \"Bot has an issue, please contract developer team\"\n        }\n    ]\n}",
-        "options": {
-          "response": {}
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        2064,
-        -144
-      ],
-      "id": "a2b723ef-c9fd-474c-b847-a23e3c9906a2",
-      "name": "Line Message When Error",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "1BHotkwd7yt1vNvL",
-          "name": "Line Token"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "url": "=https://api.line.me/v2/bot/profile/{{ $json.body.events[0].source.userId }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        64,
-        -96
-      ],
-      "id": "41237502-0581-42b2-8d1e-b84c773bbb78",
-      "name": "HTTP Request1",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "1BHotkwd7yt1vNvL",
-          "name": "Line Token"
-        }
-      }
+      "id": "0dba9824-bc75-434a-b710-76ebb89ed641",
+      "name": "Structured Output Parser"
     },
     {
       "parameters": {
@@ -238,24 +238,11 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        880,
-        -256
+        440,
+        -400
       ],
-      "id": "c9237d0a-74ed-4a2a-9127-edffc98abe3c",
+      "id": "5b185986-e34e-420c-94f6-e0a46d0dba08",
       "name": "Merge"
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{\n  \"item\": \"รายการที่เบิก\",\n  \"amount\": 500,\n  \"is_reimbursement\": true\n}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        704,
-        112
-      ],
-      "id": "fb81ce1a-f6ba-4097-b166-ad8bd9923829",
-      "name": "Structured Output Parser"
     },
     {
       "parameters": {
@@ -263,14 +250,14 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
+            "typeValidation": "loose",
+            "version": 2
           },
           "conditions": [
             {
-              "id": "02640ff9-0f1b-4e97-a8b0-627bc1271432",
+              "id": "be8f9eaa-5fcf-4962-ac5c-8c50fbb7cb5b",
               "leftValue": "={{ $json.output.is_reimbursement }}",
-              "rightValue": 200,
+              "rightValue": "",
               "operator": {
                 "type": "boolean",
                 "operation": "true",
@@ -285,40 +272,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1136,
-        -256
+        660,
+        -400
       ],
-      "id": "cbbb8764-f8ae-42c6-85a2-e88e10556647",
-      "name": "If1"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.line.me/v2/bot/message/reply",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"replyToken\":\"{{ $('Edit Fields').item.json.body.events[0].replyToken }}\",\n    \"messages\":[\n        {\n            \"type\":\"text\",\n            \"text\": \"เอิ่ม ฉันทำได้แค่รับคำขอเบิกเงินนะ\"\n        }\n    ]\n}",
-        "options": {
-          "response": {}
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1424,
-        -64
-      ],
-      "id": "ca4e408b-6be8-4e44-8297-8ec8c64f8ff5",
-      "name": "HTTP Request2",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "1BHotkwd7yt1vNvL",
-          "name": "Line Token"
-        }
-      },
-      "onError": "continueRegularOutput"
+      "id": "06166487-e16e-4c84-bb84-a1c596f1998c",
+      "name": "Is Reimbursement?"
     },
     {
       "parameters": {
@@ -340,11 +298,14 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Id": "=REIMB-{{ $now.format('yyyyMMdd') }}-{{ Math.floor(Math.random() * 10000).toString().padStart(4, '0') }}",
+            "Id": "=REIMB-{{ $now.format('yyyyMMdd') }}-{{ $execution.id }}",
             "Date": "={{ $now.format('dd-MM-yyyy') }}",
             "Name": "={{ $('Merge').item.json.displayName }}",
+            "UserId": "={{ $('Webhook').item.json.body.events[0].source.userId }}",
             "Description": "={{ $('Merge').item.json.output.item }}",
-            "Amount": "={{ $('Merge').item.json.output.amount }}"
+            "Amount": "={{ $('Merge').item.json.output.amount }}",
+            "Status": "รอหลักฐาน",
+            "SlipUrl": ""
           },
           "matchingColumns": [],
           "schema": [
@@ -352,7 +313,7 @@
               "id": "Id",
               "displayName": "Id",
               "required": false,
-              "defaultMatch": false,
+              "defaultMatch": true,
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true,
@@ -371,6 +332,16 @@
             {
               "id": "Name",
               "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "UserId",
+              "displayName": "UserId",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -407,6 +378,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "SlipUrl",
+              "displayName": "SlipUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -417,17 +398,658 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1424,
-        -272
+        880,
+        -480
       ],
-      "id": "be618b65-2d93-4997-a7ca-50108e48c163",
-      "name": "Append row in sheet",
+      "id": "70fdeda9-ad1b-47fa-81d1-2928b9a5d560",
+      "name": "Create Claim Row",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "f6ff7dWC7ExkQswP",
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"ลงทะเบียนการเบิกเรียบร้อย\\nid: {{ $json.Id }}\\nรายการ: {{ $json.Description }}\\nจำนวนเงิน: {{ $json.Amount }} บาท\\n\\nส่งรูปสลิปเข้ามาได้เลย แล้วเลือกว่าจะแนบกับใบไหน (ค้างได้ 7 วัน)\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1100,
+        -480
+      ],
+      "id": "64029f3d-ea6e-4da6-8d3b-6582f8577147",
+      "name": "Reply Claim Created",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"เอิ่ม ฉันรับได้แค่คำขอเบิกเงิน (พิมพ์รายการ + จำนวนเงิน) กับรูปสลิปนะ\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        880,
+        -300
+      ],
+      "id": "2066e843-2808-4b0a-90d4-5c938636893a",
+      "name": "Reply Not Reimbursement",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api-data.line.me/v2/bot/message/{{ $json.body.events[0].message.id }}/content",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -260,
+        -40
+      ],
+      "id": "a85a82f3-e780-42dd-baba-6600784f36da",
+      "name": "Download Slip",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=slip-{{ $('Webhook').item.json.body.events[0].source.userId }}-{{ $now.toMillis() }}.jpg",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -40,
+        -40
+      ],
+      "id": "dc394c8f-c5ab-4829-8ea6-0c798663ee82",
+      "name": "Upload Slip to Drive"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4",
+          "mode": "list",
+          "cachedResultName": "reimbursement_tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "UserId",
+              "lookupValue": "={{ $('Webhook').item.json.body.events[0].source.userId }}"
+            },
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "รอหลักฐาน"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        180,
+        -40
+      ],
+      "id": "3efc90e3-71f2-4bca-b36f-00f272ae427d",
+      "name": "Find Open Claims",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build the \"which claim is this slip for?\" carousel.\n// Runs once for all rows so it can see every open claim at the same time.\nconst rows = $input.all().map(i => i.json).filter(r => r && r.Id);\nconst drive = $('Upload Slip to Drive').first().json;\nconst fileId = drive.id;\nconst slipUrl = drive.webViewLink || `https://drive.google.com/file/d/${fileId}/view`;\nconst replyToken = $('Webhook').first().json.body.events[0].replyToken;\n\nconst clip = (s, n) => {\n  const t = String(s ?? '').replace(/\\s+/g, ' ').trim() || '-';\n  return t.length > n ? t.slice(0, n - 1) + '…' : t;\n};\n\nlet messages;\n\nif (rows.length === 0) {\n  messages = [{\n    type: 'text',\n    text: 'รับสลิปแล้ว แต่ยังไม่มีใบเบิกที่รอหลักฐานอยู่\\n' +\n          'พิมพ์รายการและจำนวนเงินเข้ามาก่อน แล้วส่งสลิปซ้ำอีกครั้งนะครับ\\n\\n' +\n          'สลิปที่เพิ่งส่ง: ' + slipUrl,\n  }];\n} else {\n  // newest first; carousel caps at 10 columns and we reserve one for \"none of these\"\n  const sorted = rows.slice().reverse();\n  const shown = sorted.slice(0, 9);\n\n  const columns = shown.map(r => ({\n    title: clip(r.Id, 40),\n    text: clip(`${r.Description} · ${r.Amount} บาท · ${r.Date}`, 60),\n    actions: [{\n      type: 'postback',\n      label: 'แนบสลิปใบนี้',\n      // everything the confirm branch needs travels in the postback itself\n      data: `action=attach&id=${encodeURIComponent(r.Id)}&file=${encodeURIComponent(fileId)}`,\n      displayText: `แนบสลิปกับ ${r.Id}`,\n    }],\n  }));\n\n  columns.push({\n    title: 'ไม่ใช่ทั้งหมด',\n    text: sorted.length > 9\n      ? `ยังมีใบค้างอีก ${sorted.length - 9} ใบ หรือเปิดใบใหม่`\n      : 'เปิดใบเบิกใหม่สำหรับสลิปนี้',\n    actions: [{\n      type: 'postback',\n      label: 'เปิดใบใหม่',\n      data: `action=new&file=${encodeURIComponent(fileId)}`,\n      displayText: 'เปิดใบเบิกใหม่',\n    }],\n  });\n\n  messages = [{\n    type: 'template',\n    altText: 'สลิปนี้เป็นของใบเบิกไหน?',\n    template: { type: 'carousel', columns },\n  }];\n}\n\nreturn [{ json: { replyToken, messages } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -40
+      ],
+      "id": "4f53ff67-5ade-4f3d-8ed1-ef06e91e48cc",
+      "name": "Build Claim Picker"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ replyToken: $json.replyToken, messages: $json.messages }) }}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        620,
+        -40
+      ],
+      "id": "0d7ad7cd-2907-462d-826f-8b7be8643753",
+      "name": "Reply Claim Picker",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Postback data is trusted structure, not free text - never send it to the LLM.\nconst ev = $json.body.events[0];\nconst params = new URLSearchParams(ev.postback?.data || '');\nreturn [{\n  json: {\n    action: params.get('action') || '',\n    claimId: params.get('id') || '',\n    fileId: params.get('file') || '',\n    userId: ev.source?.userId || '',\n    replyToken: ev.replyToken,\n    slipUrl: params.get('file')\n      ? `https://drive.google.com/file/d/${params.get('file')}/view`\n      : '',\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        340
+      ],
+      "id": "d6b325e1-e178-4f47-b835-9775faa4c49b",
+      "name": "Parse Postback"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a6cf1b70-f800-4fa7-8e29-2bc37ba576ee",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "attach",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -40,
+        340
+      ],
+      "id": "2f750267-8f91-4c58-a8a9-965072d95296",
+      "name": "Is Attach Action?"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4",
+          "mode": "list",
+          "cachedResultName": "reimbursement_tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Id",
+              "lookupValue": "={{ $('Parse Postback').item.json.claimId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        180,
+        240
+      ],
+      "id": "9c5ddf16-80ca-4bb4-9771-8d466abd8cee",
+      "name": "Re-read Claim Row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b21a76f-1db6-4354-a983-13eaf942db7b",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "รอหลักฐาน",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "d661360e-42e6-402f-a3fc-699bb04ca0e4",
+              "leftValue": "={{ $json.UserId }}",
+              "rightValue": "={{ $('Parse Postback').item.json.userId }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        240
+      ],
+      "id": "7b7931d6-e175-4330-9529-7050b17b8314",
+      "name": "Still Open & Owner?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4",
+          "mode": "list",
+          "cachedResultName": "reimbursement_tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lm6theI5HyqkMPTbzv2v2fhtbHTWofaBJ4cRrAoXIO4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $('Parse Postback').item.json.claimId }}",
+            "Status": "รอตรวจ",
+            "SlipUrl": "={{ $('Parse Postback').item.json.slipUrl }}"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "UserId",
+              "displayName": "UserId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "SlipUrl",
+              "displayName": "SlipUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        620,
+        160
+      ],
+      "id": "6dcde654-1ebc-42ac-9b28-ca4c29f683c0",
+      "name": "Attach Slip to Claim",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "f6ff7dWC7ExkQswP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"แนบสลิปกับ {{ $('Parse Postback').item.json.claimId }} เรียบร้อย\\nสถานะ: รอตรวจ\\nสลิป: {{ $('Parse Postback').item.json.slipUrl }}\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        840,
+        160
+      ],
+      "id": "1e8f84dd-0779-48b5-9ea9-28e1e0d63c63",
+      "name": "Reply Slip Attached",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"ใบ {{ $('Parse Postback').item.json.claimId }} แนบสลิปไปแล้วหรือปิดไปแล้วครับ ระบบไม่เขียนทับให้\\nถ้าแนบผิดใบ แจ้งฝ่ายบัญชีให้แก้ในชีทนะครับ\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        620,
+        340
+      ],
+      "id": "c1f4b80c-6410-4afd-b985-447d21bcfc27",
+      "name": "Reply Claim Not Open",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"โอเค เก็บสลิปไว้แล้วครับ: {{ $('Parse Postback').item.json.slipUrl }}\\nพิมพ์รายการและจำนวนเงินเข้ามา แล้วส่งสลิปซ้ำเพื่อแนบกับใบใหม่ได้เลย\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        180,
+        440
+      ],
+      "id": "0f5750df-8bf3-4ff0-80bc-e96de7c9513f",
+      "name": "Reply Open New Claim",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"ฉันรับได้แค่ข้อความขอเบิกเงิน กับรูปสลิปนะครับ\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -260,
+        560
+      ],
+      "id": "693a5945-a22d-4844-b004-afe1aa80032a",
+      "name": "Reply Unsupported",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b9de4e38-9ac9-4fed-87db-d8905c803428",
+              "leftValue": "={{ !!$json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1320,
+        -480
+      ],
+      "id": "369e88c2-1506-4f66-b079-5a9663d524ad",
+      "name": "Reply Failed?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"replyToken\": \"{{ $('Webhook').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"Bot has an issue, please contact developer team\"\n    }\n  ]\n}",
+        "options": {
+          "response": {}
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1540,
+        -480
+      ],
+      "id": "b7ccc95c-0b8b-46d8-bb30-c56ed208173b",
+      "name": "Line Message When Error",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1BHotkwd7yt1vNvL",
+          "name": "Line Token"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -436,7 +1058,55 @@
       "main": [
         [
           {
-            "node": "HTTP Request1",
+            "node": "Route Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Event": {
+      "main": [
+        [
+          {
+            "node": "Get LINE Profile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Slip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Postback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Unsupported",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LINE Profile": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -465,62 +1135,188 @@
         ]
       ]
     },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request": {
+    "Merge": {
       "main": [
         [
           {
-            "node": "If",
+            "node": "Is Reimbursement?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Simple Memory": {
-      "ai_memory": [
+    "Is Reimbursement?": {
+      "main": [
         [
           {
-            "node": "AI Agent",
-            "type": "ai_memory",
+            "node": "Create Claim Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Not Reimbursement",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If": {
+    "Create Claim Row": {
       "main": [
-        [],
+        [
+          {
+            "node": "Reply Claim Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Claim Created": {
+      "main": [
+        [
+          {
+            "node": "Reply Failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Failed?": {
+      "main": [
         [
           {
             "node": "Line Message When Error",
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
-    "HTTP Request1": {
+    "Download Slip": {
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "Upload Slip to Drive",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "Upload Slip to Drive": {
+      "main": [
+        [
           {
-            "node": "Merge",
+            "node": "Find Open Claims",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Open Claims": {
+      "main": [
+        [
+          {
+            "node": "Build Claim Picker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Claim Picker": {
+      "main": [
+        [
+          {
+            "node": "Reply Claim Picker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Postback": {
+      "main": [
+        [
+          {
+            "node": "Is Attach Action?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Attach Action?": {
+      "main": [
+        [
+          {
+            "node": "Re-read Claim Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Open New Claim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-read Claim Row": {
+      "main": [
+        [
+          {
+            "node": "Still Open & Owner?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still Open & Owner?": {
+      "main": [
+        [
+          {
+            "node": "Attach Slip to Claim",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Claim Not Open",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Slip to Claim": {
+      "main": [
+        [
+          {
+            "node": "Reply Slip Attached",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -536,53 +1332,13 @@
           }
         ]
       ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "If1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If1": {
-      "main": [
-        [
-          {
-            "node": "Append row in sheet",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "HTTP Request2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Append row in sheet": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "d15327ec-611e-4d69-8791-5eedd3a3e668",
+  "versionId": "f9107156-9e96-43d2-8058-08d8b4f257e1",
   "meta": {
     "instanceId": "987aa5d02e19bdc715b2f05f5fddc1adf395996c8e7fc6a84c858eeb3f120b44"
   },
